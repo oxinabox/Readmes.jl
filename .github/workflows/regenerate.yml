@@ -1,0 +1,18 @@
+name: regenerate_readme
+on: [push, pull_request]
+jobs:
+  regen:
+    name: "Regenerate The README.md"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: 1.6
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - run: julia --color=yes --project=docs/ -e 'using Pkg; dev .'
+      - run: julia --color=yes --project=docs/ -e 'using READMEs; generate_readme()'
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Regenerate README.md
