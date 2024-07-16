@@ -51,7 +51,7 @@ function generate_readme(::Type{IOBuffer}, template_file)
         for func_name in split(only(docblock_match), "\n")
             func_name = strip(func_name)
             isempty(func_name) && continue
-            docstring = (@eval Main (@doc $(Meta.parse(func_name))))  # TODO: insert better code here that gets the docs programatically
+            docstring = get_docstring(func_name)
             println(outbuf, docstring)
         end
         println(outbuf, "\n---\n")
@@ -59,6 +59,13 @@ function generate_readme(::Type{IOBuffer}, template_file)
     # insert text after docstrings
     println(outbuf, @view template[last_read_loc : end])
     return seek(outbuf, 0)
+end
+
+function get_docstring(func_name::AbstractString)
+    # TODO: insert better code here that gets the docs programatically
+    docstring = (@eval Main (@doc $(Meta.parse(func_name))))
+    isnothing(docstring) && error("docstring for $func_name not found")
+    return docstring
 end
 
 """
